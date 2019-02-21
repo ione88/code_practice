@@ -12,31 +12,55 @@ public class Solution {
 
     // Complete the activityNotifications function below.
     static int activityNotifications(int[] expenditure, int d) {
-        if (d >= expenditure.length) {
-            return 0;
-        }
+        Map<Integer, Integer> map = new TreeMap<>();
 
-        int sum = 0;
         int i = 0;
         int result = 0;
         for (; i < d; ++i) {
-            sum += expenditure[i];
+            map.put(expenditure[i], map.getOrDefault(expenditure[i], 0) + 1);
         }
 
         for (i = d; i < expenditure.length; ++i) {
-            if ( expenditure[i] * d >= 2*sum ) {
-                ++result;
-            }
-            sum += expenditure[i] - expenditure[i-d];
+            result += getNotice(expenditure[i], getMedianX2(map, d));
+
+            map.put(expenditure[i], map.getOrDefault(expenditure[i], 0) + 1);
+            map.put(expenditure[i-d], map.get(expenditure[i-d]) - 1);
         }
 
         return result;
     }
+    static int getNotice(int value, int control) {
+        return (value >= control) ? 1 : 0;
+    }
 
-    private static final Scanner scanner = new Scanner(System.in);
+    static int getMedianX2(Map<Integer, Integer> map, int d) {
+        int result = 0;
+        int count = 0;
+        int flag = 0;
+        int extra = 1 - (d % 2);
+        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+            count += entry.getValue();
+            if ( (flag == 0) && (count > ((d / 2) - extra)) ) {
+                result += entry.getKey();
+                flag++;
+            }
+
+            if ( (flag == 1) && (count > (d / 2)) ) {
+                result += entry.getKey();
+                flag++;
+            }
+
+            if (flag == 2)
+                return result;
+        }
+        return result;
+    }
+
+
 
     public static void main(String[] args) throws IOException {
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(System.getenv("OUTPUT_PATH")));
+        Scanner scanner = new Scanner(new FileReader("input.txt"));
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("output.txt"));
 
         String[] nd = scanner.nextLine().split(" ");
 
